@@ -42,11 +42,13 @@ sudo ./pihub.sh -h
 # Run with full install  
 sudo ./pihub.sh -e eth0 -w wlan0 -n Galaxy --install  
 ```  
+After installation, connect your computer via ethernet to the Raspberry Pi, and your pc should automatically get an IP address.  
+The Raspberry Pi's IP address should be `10.42.0.1`.  
+You can *SSH* or *VNC* to it, and preform whatever actions you like (as mentioned in explanation above)  
+Enjoy!  
   
 ## Disclaimer  
 Because there is mention of Tor, and WiFi pentesting in this project, I feel I must have a disclaimer.  
 I am not responsible for anything done with this setup.  
 It is the end user's responsibility to obey the law.  
 I assume no liability and am not responsible for any misuse or damage caused by this program directly or indirectly.  
-  
-# Enjoy!
