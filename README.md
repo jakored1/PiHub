@@ -32,11 +32,11 @@ Of course, you could also simply route the Pi and it's clients only through a VP
 ![Route Through VPN](images/route_through_vpn.webp)  
   
 ## Installation  
-To install the "PiHub", run these commands:  
+To install the "PiHub" on a Raspberry Pi 5, run these commands:  
 ```bash  
-wget http://...  
+wget https://raw.githubusercontent.com/jakored1/PiHub/refs/heads/main/pihub.sh  
 chmod +x pihub.sh  
-# Run program with 'sudo', and not directly as the 'root' user  
+# Run program with 'sudo', not directly as the 'root' user  
 sudo ./pihub.sh -h  
   
 # Run with full install  
