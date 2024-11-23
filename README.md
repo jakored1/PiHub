@@ -1,5 +1,5 @@
 # PiHub  
-The "PiHub" is a Raspberry Pi 5 (desktop version), with the a few changes that allow the Raspberry Pi to preform multiple networking related Privacy/Pentesting actions, such as:  
+The "PiHub" is a Raspberry Pi 5 (desktop version), with the a few changes that allow the Raspberry Pi to preform multiple network related privacy and pentesting actions, such as:  
 
 ### Become NAT Router (via Ethernet)  
 The Raspberry Pi connects to a Wifi network, and routes all the devices connected to it's ethernet interface through that wifi network:  
