@@ -7,7 +7,7 @@ The Raspberry Pi connects to a Wifi network, and routes all the devices connecte
   
 To connect to a WiFi network and route all clients through the network use the script `connect_to_wifi.sh`, located on the users desktop.  
 It is recommended to use this script every time you connect to a WiFi network.  
-The script randomizes your MAC address, and configures IPtables to make sure your Raspberry Pi is secure when connected to the network.  
+The script randomizes your MAC address, configures IPtables to make sure your Raspberry Pi is secure when connected to the network, and more.  
   
 ### Attack WiFi Networks  
 Once connected to the Pi via Ethernet, you can connect a wifi adapter that supports monitor mode, and use the tools that the "PiHub" installs (`Aircrack-NG`, `Wifite`, `Fluxion`, `BeEF`, `Airgeddon`, `AngryOxide` and more) to pentest nearby wifi networks:  
