@@ -140,21 +140,21 @@ echo ""
 echo "############################################"
 echo "# Updating/Upgrading & Installing Packages #"
 echo "############################################"
-if ! apt update; then
-	echo "The command \"sudo apt update\" failed, please fix this error and try again"
+if ! apt-get update; then
+	echo "The command \"sudo apt-get update\" failed, please fix this error and try again"
 	exit 1
 fi
-if ! apt upgrade -y; then
-	echo "The command \"sudo apt upgrade -y\" failed, please fix this error and try again"
+if ! apt-get upgrade -y; then
+	echo "The command \"sudo apt-get upgrade -y\" failed, please fix this error and try again"
 	exit 1
 fi
-apt install -y iptables-persistent python3-full python3-virtualenv dnsutils
+apt-get install -y iptables-persistent python3-full python3-virtualenv dnsutils
 
 echo ""
 echo "#########################"
 echo "# Installing SSH Server #"
 echo "#########################"
-apt install -y openssh-server
+apt-get install -y openssh-server
 systemctl stop ssh.service
 rm -rf /etc/ssh/default_keys 
 mkdir /etc/ssh/default_keys
@@ -268,7 +268,7 @@ echo ""
 echo "###################"
 echo "# Randomizing MAC #"
 echo "###################"
-apt install -y macchanger
+apt-get install -y macchanger
 ifconfig "${WIFI_INTERFACE}" down
 macchanger -r "${WIFI_INTERFACE}"
 ifconfig "${WIFI_INTERFACE}" up
@@ -455,25 +455,25 @@ echo ""
 echo "##################"
 echo "# Installing Git #"
 echo "##################"
-apt install -y git
+apt-get install -y git
 
 echo ""
 echo "###################"
 echo "# Installing Nmap #"
 echo "###################"
-apt install -y nmap
+apt-get install -y nmap
 
 echo ""
 echo "########################"
 echo "# Installing Wireshark #"
 echo "########################"
-apt install -y wireshark
+apt-get install -y wireshark
 
 echo ""
 echo "###################################"
 echo "# Installing Driver For RTL88XXAU #"
 echo "###################################"
-apt install -y raspberrypi-kernel-headers bc mokutil build-essential libelf-dev dkms
+apt-get install -y raspberrypi-kernel-headers bc mokutil build-essential libelf-dev dkms
 git clone https://gitlab.com/kalilinux/packages/realtek-rtl88xxau-dkms.git
 cd realtek-rtl88xxau-dkms
 make dkms_install
@@ -566,13 +566,13 @@ echo ""
 echo "##########################"
 echo "# Installing Aircrack-NG #"
 echo "##########################"
-apt install -y aircrack-ng
+apt-get install -y aircrack-ng
 
 echo ""
 echo "##################"
 echo "# Installing Tor #"
 echo "##################"
-apt install -y tor jq
+apt-get install -y tor jq
 systemctl disable tor
 systemctl stop tor
 cat <<ROUTE_THROUGH_TOR > $SCRIPTS_FOLDER/route_through_tor.sh
@@ -1026,7 +1026,7 @@ echo ""
 echo "#####################"
 echo "# Installing Wifite #"
 echo "#####################"
-apt install -y bully hashcat hcxdumptool hcxtools reaver tshark python3-psycopg2 python3-scapy libpcap-dev libssl-dev
+apt-get install -y bully hashcat hcxdumptool hcxtools reaver tshark python3-psycopg2 python3-scapy libpcap-dev libssl-dev
 git clone https://github.com/derv82/wifite2.git $TOOL_INSTALL_DIRECTORY/wifite2
 chown $SUDO_USER:$SUDO_USER -R $TOOL_INSTALL_DIRECTORY/wifite2/
 cat <<EOF > /usr/local/bin/wifite2
@@ -1041,7 +1041,7 @@ echo ""
 echo "######################"
 echo "# Installing Fluxion #"
 echo "######################"
-apt install -y x11-utils xorg cowpatty lighttpd dsniff mdk4 mdk3 xterm php-cgi hostapd
+apt-get install -y x11-utils xorg cowpatty lighttpd dsniff mdk4 mdk3 xterm php-cgi hostapd
 systemctl disable lighttpd.service
 systemctl stop lighttpd.service
 systemctl disable hostapd.service
@@ -1077,8 +1077,8 @@ echo ""
 echo "########################"
 echo "# Installing Airgeddon #"
 echo "########################"
-apt update
-apt install -y bettercap ettercap-graphical tcpdump john crunch tmux
+apt-get update
+apt-get install -y bettercap ettercap-graphical tcpdump john crunch tmux
 systemctl disable bettercap.service
 systemctl stop bettercap.service
 git clone --depth 1 https://github.com/v1s1t0r1sh3r3/airgeddon.git $TOOL_INSTALL_DIRECTORY/airgeddon
@@ -1098,17 +1098,17 @@ echo "#####################"
 rm -rfv /usr/local/bin/kismet* /usr/local/share/kismet* /usr/local/etc/kismet*
 wget -O - https://www.kismetwireless.net/repos/kismet-release.gpg.key --quiet | gpg --dearmor | tee /usr/share/keyrings/kismet-archive-keyring.gpg >/dev/null
 echo 'deb [signed-by=/usr/share/keyrings/kismet-archive-keyring.gpg] https://www.kismetwireless.net/repos/apt/release/bookworm bookworm main' | tee /etc/apt/sources.list.d/kismet.list >/dev/null
-apt update
-apt install -y kismet
+apt-get update
+apt-get install -y kismet
 rm /usr/share/keyrings/kismet-archive-keyring.gpg
 rm /etc/apt/sources.list.d/kismet.list
-apt update
+apt-get update
 
 echo ""
 echo "#########################"
 echo "# Installing AngryOxide #"
 echo "#########################"
-apt install -y jq
+apt-get install -y jq
 CPU_ARCHTIECTURE=$(lscpu | grep Architecture | awk {'print $2'})
 json=$(curl -s "https://api.github.com/repos/Ragnt/AngryOxide/releases")
 latest_tag=$(echo "$json" | jq -r '.[0].tag_name')
@@ -1134,7 +1134,7 @@ echo ""
 echo "########################"
 echo "# Installing Responder #"
 echo "########################"
-apt install -y python3-netifaces
+apt-get install -y python3-netifaces
 git clone https://gitlab.com/kalilinux/packages/responder.git $TOOL_INSTALL_DIRECTORY/responder
 chown $SUDO_USER:$SUDO_USER -R $TOOL_INSTALL_DIRECTORY/responder/
 cat <<EOF > /usr/local/bin/responder
@@ -1149,7 +1149,7 @@ echo ""
 echo "#######################"
 echo "# Installing SSLStrip #"
 echo "#######################"
-apt install -y python3-netifaces python3-twisted python3-openssl python3-cryptography
+apt-get install -y python3-netifaces python3-twisted python3-openssl python3-cryptography
 git clone https://gitlab.com/kalilinux/packages/sslstrip.git $TOOL_INSTALL_DIRECTORY/sslstrip
 chown $SUDO_USER:$SUDO_USER -R $TOOL_INSTALL_DIRECTORY/sslstrip/
 cat <<EOF > /usr/local/bin/sslstrip
@@ -1169,13 +1169,13 @@ sudo curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc https://repository.mull
 # Add the Mullvad repository server to apt
 echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mullvad.list
 # Update repos and install
-apt update
-apt install -y mullvad-vpn
+apt-get update
+apt-get install -y mullvad-vpn
 # Remove Mullvad repo and signing key
 rm /usr/share/keyrings/mullvad-keyring.asc
 rm /etc/apt/sources.list.d/mullvad.list
 # Updating again
-apt update
+apt-get update
 cat <<TOR_OVER_VPN > $SCRIPTS_FOLDER/tor_over_vpn.sh
 #!/bin/bash
 
@@ -1683,7 +1683,7 @@ echo ""
 echo "#################################"
 echo "# Removing Unnecessary Packages #"
 echo "#################################"
-apt autoremove -y
+apt-get autoremove -y
 
 echo ""
 echo "######################"
