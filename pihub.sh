@@ -126,6 +126,9 @@ wifi.scan-rand-mac-address=yes
 [connection]
 wifi.cloned-mac-address=random
 ethernet.cloned-mac-address=random
+
+[dhcp]
+send-hostname=false
 EOF
 systemctl restart NetworkManager
 sleep 5
