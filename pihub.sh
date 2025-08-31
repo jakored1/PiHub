@@ -474,11 +474,13 @@ apt-get install -y wireshark
 
 echo ""
 echo "###################################"
-echo "# Installing Driver For RTL88XXAU #"
+echo "# Installing Driver For RTL8814AU #"
 echo "###################################"
 apt-get install -y raspberrypi-kernel-headers bc mokutil build-essential libelf-dev dkms
 git clone https://gitlab.com/kalilinux/packages/realtek-rtl88xxau-dkms.git
 cd realtek-rtl88xxau-dkms
+sed -i 's/CONFIG_RTL8812A = y/CONFIG_RTL8812A = n/' Makefile
+sed -i 's/CONFIG_RTL8821A = y/CONFIG_RTL8821A = n/' Makefile
 make dkms_install
 # to check if installed run "dkms status"
 # to remove driver run "make dkms_remove"
