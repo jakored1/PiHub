@@ -151,7 +151,17 @@ if ! apt-get upgrade -y; then
 	echo "The command \"sudo apt-get upgrade -y\" failed, please fix this error and try again"
 	exit 1
 fi
-apt-get install -y iptables-persistent python3-full python3-virtualenv dnsutils
+# install some packages
+apt-get install -y iptables-persistent python3-full python3-virtualenv dnsutils mlocate plocate
+# install ruby from source to get a later version than debian repos
+wget -O /tmp/ruby-3.4.5.tar.gz https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.5.tar.gz
+tar -C /tmp/ -zxvf /tmp/ruby-3.4.5.tar.gz && rm -vrf /tmp/ruby-3.4.5.tar.gz
+cd /tmp/ruby-3.4.5
+./configure
+make
+make install
+cd -
+rm -rf /tmp/ruby-3.4.5
 
 echo ""
 echo "#########################"
