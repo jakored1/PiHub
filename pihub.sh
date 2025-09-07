@@ -11,23 +11,25 @@ TTL=""
 INSTALL_PROGRAMS=""
 SCRIPTS_FOLDER="/home/$SUDO_USER/Desktop/"
 TOOL_INSTALL_DIRECTORY="/opt"
+DEBUG_MODE="n"
 
 PACKAGES_INSTALLED_FILE="/root/.rpi5_wifi_bridge_extra_packages_installed"
 
 SCRIPT_PATH="$0"
 help_menu () {
-	echo "usage:"
-	printf "\t-h, --help\tshow this menu\n"
-	printf "\t-e\t\tethernet interface (default '$ETHERNET_INTERFACE')\n"
-	printf "\t-w\t\twifi interface (default '$WIFI_INTERFACE')\n"
-	printf "\t-n\t\thostname - whitespace is not allowed in hostname (default '$DEVICE_HOSTNAME')\n"
-	printf "\t--install\tto install extra programs and drivers\n"
-	printf "\t-t\t\tset ipv4 and ipv6 ttl (optional, default is to leave current values, recommended value is between 64 to 255)\n"
-	echo ""
-	echo "examples:"
-	printf "\tsudo $SCRIPT_PATH -h\n"
-	printf "\tsudo $SCRIPT_PATH\n"
-	printf "\tsudo $SCRIPT_PATH -e eth0 -w wlan0 -n samsung --install -t 80\n"
+	echo -e "usage:"
+	echo -e "\t-h, --help\tshow this menu"
+	echo -e "\t-e\t\tethernet interface (default '$ETHERNET_INTERFACE')"
+	echo -e "\t-w\t\twifi interface (default '$WIFI_INTERFACE')"
+	echo -e "\t-n\t\thostname - whitespace is not allowed in hostname (default '$DEVICE_HOSTNAME')"
+	echo -e "\t--install\tto install extra programs and drivers"
+ 	echo -e "\t-d\t\tenable debug mode (will print out all commands that are being executed)"
+	echo -e "\t-t\t\tset ipv4 and ipv6 ttl (optional, default is to leave current values, recommended value is between 64 to 255)"
+	echo -e ""
+	echo -e "examples:"
+	echo -e "\tsudo $SCRIPT_PATH -h"
+	echo -e "\tsudo $SCRIPT_PATH"
+	echo -e "\tsudo $SCRIPT_PATH -e eth0 -w wlan0 -n samsung --install -t 80"
 }
 
 # Iterating over arguments
@@ -39,12 +41,18 @@ do
 		--help) help_menu; exit 0
 			;;
 		-e) ETHERNET_INTERFACE="$2"
+			shift 1
 			;;
 		-w) WIFI_INTERFACE="$2"
+			shift 1
 			;;
 		-n) DEVICE_HOSTNAME="$2"
+			shift 1
+			;;
+   		-d) DEBUG_MODE="y"
 			;;
 		-t) TTL="$2"
+			shift 1
 			;;
 		--install) INSTALL_PROGRAMS="Yes"
 			;;
@@ -63,6 +71,10 @@ echo "If this is not the OS/RPi version you have, some stuff might not work"
 echo "This script *should* work flawlessly, but if it crashes at some point, you can just go over the script and run all the commands manually"
 echo "(it's just a bunch of commands that set and install stuff, nothing too fancy)"
 read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE] || $confirm == [yY][eE][sS] ]] || exit 0
+
+if [[ "$DEBUG_MODE" == "y" ]]; then
+	set -x
+fi
 
 echo ""
 echo "#########################################"
@@ -153,15 +165,6 @@ if ! apt-get upgrade -y; then
 fi
 # install some packages
 apt-get install -y iptables-persistent python3-full python3-virtualenv dnsutils mlocate plocate
-# install ruby from source to get a later version than debian repos
-wget -O /tmp/ruby-3.4.5.tar.gz https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.5.tar.gz
-tar -C /tmp/ -zxvf /tmp/ruby-3.4.5.tar.gz && rm -vrf /tmp/ruby-3.4.5.tar.gz
-cd /tmp/ruby-3.4.5
-./configure
-make
-make install
-cd -
-rm -rf /tmp/ruby-3.4.5
 
 echo ""
 echo "#########################"
@@ -261,7 +264,7 @@ if grep -Fxq "hostname-mode=none" /etc/NetworkManager/NetworkManager.conf
 then
     :
 else
-	perl -pi -e '$_ .= qq(hostname-mode=none\n) if /\[main\]/' /etc/NetworkManager/NetworkManager.conf
+	perl -pi -e '$_ .= qq(hostname-mode=none) if /\[main\]/' /etc/NetworkManager/NetworkManager.conf
 fi
 
 echo ""
@@ -306,18 +309,18 @@ DEVICE_HOSTNAME=""
 TTL=""
 SCRIPT_PATH="\$0"
 help_menu () {
-	echo "Securely connect to a wifi network"
-	echo ""
-	echo "usage:"
-	printf "\t-h, --help\tshow this menu\n"
-	printf "\t-i\t\twifi interface (default '\$WIFI_INTERFACE')\n"
-	printf "\t-n\t\tchange hostname (requires reboot) - whitespace is not allowed in hostname (default - leave current hostname)\n"
-	printf "\t-t\t\tset ipv4 and ipv6 ttl (optional, default is to leave current values, recommended value is between 64 to 255)\n"
-	echo ""
-	echo "examples:"
-	printf "\tsudo \$SCRIPT_PATH -h\n"
-	printf "\tsudo \$SCRIPT_PATH\n"
-	printf "\tsudo \$SCRIPT_PATH -i wlan0 -n Samsung -t 255\n"
+	echo -e "Securely connect to a wifi network"
+	echo -e ""
+	echo -e "usage:"
+	echo -e "\t-h, --help\tshow this menu"
+	echo -e "\t-i\t\twifi interface (default '\$WIFI_INTERFACE')"
+	echo -e "\t-n\t\tchange hostname (requires reboot) - whitespace is not allowed in hostname (default - leave current hostname)"
+	echo -e "\t-t\t\tset ipv4 and ipv6 ttl (optional, default is to leave current values, recommended value is between 64 to 255)"
+	echo -e ""
+	echo -e "examples:"
+	echo -e "\tsudo \$SCRIPT_PATH -h"
+	echo -e "\tsudo \$SCRIPT_PATH"
+	echo -e "\tsudo \$SCRIPT_PATH -i wlan0 -n Samsung -t 255"
 }
 
 if [ "\$#" == 0 ]; then
@@ -331,15 +334,16 @@ fi
 while test \$# -gt 0
 do
 	case "\$1" in
-		-h) help_menu; exit 0
-			;;
-		--help) help_menu; exit 0
+		-h|--help) help_menu; exit 0
 			;;
 		-i) WIFI_INTERFACE="\$2"
+			shift 1
 			;;
 		-n) DEVICE_HOSTNAME="\$2"
+			shift 1
 			;;
 		-t) TTL="\$2"
+			shift 1
 			;;
 	esac
 	shift
@@ -391,9 +395,7 @@ iw dev \$WIFI_INTERFACE set type managed
 rfkill unblock all
 ip link set \$WIFI_INTERFACE up
 
-if [ -z "\${TTL}" ]; then
-	:
-else
+if [ -n "\${TTL}" ]; then
 	echo ""
 	echo "--> changing ttl"
 	sysctl -w net.ipv4.ip_default_ttl=\$TTL
@@ -514,18 +516,18 @@ WIFI_INTERFACE="wlan0"
 MANAGED_MODE=""
 SCRIPT_PATH="\$0"
 help_menu () {
-	echo "Set a wifi interface to monitor/managed mode"
-	echo ""
-	echo "usage:"
-	printf "\t-h, --help\tshow this menu\n"
-	printf "\t-i\t\twifi interface (default '\$WIFI_INTERFACE')\n"
-	printf "\t-m\t\tif flag is set, this will set wifi interface to 'managed' mode\n"
-	echo ""
-	echo "examples:"
-	printf "\tsudo \$SCRIPT_PATH -h\n"
-	printf "\tsudo \$SCRIPT_PATH\n"
-	printf "\tsudo \$SCRIPT_PATH -i wlan0\n"
-	printf "\tsudo \$SCRIPT_PATH -i wlan0 -m\n"
+	echo -e "Set a wifi interface to monitor/managed mode"
+	echo -e ""
+	echo -e "usage:"
+	echo -e "\t-h, --help\tshow this menu"
+	echo -e "\t-i\t\twifi interface (default '\$WIFI_INTERFACE')"
+	echo -e "\t-m\t\tif flag is set, this will set wifi interface to 'managed' mode"
+	echo -e ""
+	echo -e "examples:"
+	echo -e "\tsudo \$SCRIPT_PATH -h"
+	echo -e "\tsudo \$SCRIPT_PATH"
+	echo -e "\tsudo \$SCRIPT_PATH -i wlan0"
+	echo -e "\tsudo \$SCRIPT_PATH -i wlan0 -m"
 }
 
 if [ "\$#" == 0 ]; then
@@ -539,11 +541,10 @@ fi
 while test \$# -gt 0
 do
 	case "\$1" in
-		-h) help_menu; exit 0
-			;;
-		--help) help_menu; exit 0
+		-h|--help) help_menu; exit 0
 			;;
 		-i) WIFI_INTERFACE="\$2"
+			shift 1
 			;;
 		-m) MANAGED_MODE="Yes"
 			;;
@@ -576,6 +577,290 @@ echo "Done"
 EOF
 chown $SUDO_USER:$SUDO_USER $SCRIPTS_FOLDER/set_monitor_mode.sh
 chmod +x $SCRIPTS_FOLDER/set_monitor_mode.sh
+
+echo ""
+echo "#################################"
+echo "# Installing Linux-Wifi-Hotspot #"
+echo "#################################"
+apt-get install -y libgtk-3-dev build-essential gcc g++ pkg-config make hostapd libqrencode-dev libpng-dev git haveged fzf
+git clone https://github.com/lakinduakash/linux-wifi-hotspot /tmp/linux-wifi-hotspot
+cd /tmp/linux-wifi-hotspot
+make
+make install
+# commands you can use later: 
+# sudo make uninstall # uninstall linux-wifi-hotspot
+# wihotspot # start with a gui
+cd -
+rm -rf /tmp/linux-wifi-hotspot
+cat <<EOF > $SCRIPTS_FOLDER/start_hotspot.sh
+#!/bin/bash
+
+WIFI_INTERFACE="wlan0"
+DEVICE_HOSTNAME=""
+TTL=""
+SCRIPT_PATH="\$0"
+HOTSPOT_INTERFACE=""
+CREATE_AP_ARGS=""
+HOTSPOT_NAME=""
+HOTSPOT_PASSWORD=""
+LIST_RUNNING=""
+LIST_CLIENTS=""
+STOP_AP=""
+DEBUG_MODE=""
+BLOCK_CLIENTS=""
+
+SICON="[+]"
+FICON="[-]"
+
+help_menu () {
+	echo -e "This script is basically a wrapper for the 'create_ap' utility with some extra features."
+	echo -e "It allows you to connect to a wifi network with one interface, and use another interface (that supports monitor mode) to create a wifi hotpost that will route traffic through the network you connected to with the first interface."
+	echo -e ""
+	echo -e "usage:"
+	echo -e "\t-h, --help\t\tshow this menu"
+	echo -e "\t-ch, --create-ap-help\truns the command 'create_ap --help' to show available create_ap arguments"
+	echo -e "\t-d, --debug\t\tactivate debug mode"
+	echo -e "\t-i\t\t\twifi interface that will connect to a network (default '\$WIFI_INTERFACE')"
+	echo -e "\t-m\t\t\tinterface that supports monitor mode, which will be used to create the wifi hotpost"
+	echo -e "\t-b\t\t\tblock clients of the hotspot from connecting or interacting directly with the raspberry pi"
+	echo -e "\t-c, --create-ap-args\targuments (as one string) to pass to the 'create_ap' command. ONLY PASS FLAGS! DO NOT pass arguments that explicitly ask to use specific interfaces for things (see examples). Also, DO NOT set the '--mac' flag here, use the flag in this script"
+	echo -e "\t-n, --hotspot-name\tthe new hotspot name"
+	echo -e "\t-p, --hotspot-password\tthe new hotspot password"
+	echo -e "\t--list-running\t\tview all the running AP (hotspot) processes"
+	echo -e "\t--list-clients\t\tview all the clients connected to an AP (hotspot) interface"
+	echo -e "\t--stop\t\t\tstop AP (hotspot) that is running on given interface (only necessary if passing '--daemon' argument to create_ap)"
+	echo -e "\t-t\t\t\tset ipv4 and ipv6 ttl (optional, default is to leave current values, recommended value is between 64 to 255)"
+	echo -e ""
+	echo -e "examples:"
+	echo -e "\tsudo \$SCRIPT_PATH -h"
+	echo -e "\tsudo \$SCRIPT_PATH -ch"
+	echo -e "\tsudo \$SCRIPT_PATH -i wlan0 -m wlan1 -c '-m nat -w 2 --isolate-clients --daemon --no-virt -g 192.168.12.1 -d --hidden' -n 'My Network' -p '12345678' -b -d"
+	echo -e "\tsudo \$SCRIPT_PATH --list-running"
+	echo -e "\tsudo \$SCRIPT_PATH --list-clients -m wlan1"
+	echo -e "\tsudo \$SCRIPT_PATH --stop -m wlan1"
+	echo -e ""
+	echo -e "tip: use the '--daemon' argument for create_ap to make the hotspot run in the background. You can then use the other flags in this script (--list-running,--list-clients,--stop) to view clients, active hotspots, and close active hotspots. This is the best way to use this script."
+}
+
+exit_program () {
+	if [ "\$1" -ne 0 ]; then
+		echo -n "\$FICON "
+	else
+		echo -n "\$SICON "
+	fi
+	echo "\$2"
+	exit \$1
+}
+
+if [ "\$#" == 0 ]; then
+	help_menu
+	exit 0
+fi
+
+[ \$EUID -ne 0 ] && echo "run with sudo: 'sudo \$0'" >&2 && exit 1
+
+# Iterating over arguments
+while test \$# -gt 0
+do
+	case "\$1" in
+		-h|--help) help_menu; exit 0
+			;;
+		-ch|--create-ap-help) create_ap --help; exit 0
+			;;
+		-i) WIFI_INTERFACE="\$2"
+			shift 1
+			;;
+		-c|--create-ap-args) CREATE_AP_ARGS="\$2"
+			shift 1
+			;;
+		-n|--hotspot-name) HOTSPOT_NAME="\$2"
+			shift 1
+			;;
+		-p|--hotspot-password) HOTSPOT_PASSWORD="\$2"
+			shift 1
+			;;
+		-m) HOTSPOT_INTERFACE="\$2"
+			shift 1
+			;;
+		-t) TTL="\$2"
+			shift 1
+			;;
+		-b) BLOCK_CLIENTS="y"
+			;;
+		-d|--debug) DEBUG_MODE="y"
+			;;
+		--list-running) LIST_RUNNING="y"
+			;;
+		--list-clients) LIST_CLIENTS="y"
+			;;
+		--stop) STOP_AP="y"
+			;;
+	esac
+	shift
+done
+
+# activate debug mode
+if [ "\$DEBUG_MODE" == "y" ]; then
+	set -x
+fi
+
+# check if user wants to list running APs
+if [ "\$LIST_RUNNING" == "y" ]; then
+	echo "\$SICON running 'create_ap --list-running'"
+	create_ap --list-running
+	if [ "\$?" -ne 0 ]; then
+		echo "\$FICON above error is from the 'create_ap' program, not this script"
+		exit_program 1 "done"
+	fi
+	exit_program 0 "done"
+fi
+# check if user wants to list connected clients
+if [ "\$LIST_CLIENTS" == "y" ]; then
+	if [ -z "\${HOTSPOT_INTERFACE}" ]; then
+		exit_program 1 "missing argument '-m' <hotspot_interface>"
+	fi
+	echo "\$SICON running 'create_ap --list-clients "\$HOTSPOT_INTERFACE"'"
+	create_ap --list-clients "\$HOTSPOT_INTERFACE"
+	if [ "\$?" -ne 0 ]; then
+		echo "\$FICON above error is from the 'create_ap' program, not this script"
+		exit_program 1 "done"
+	fi
+	exit_program 0 "done"
+fi
+# check if user wants to stop AP
+if [ "\$STOP_AP" == "y" ]; then
+	if [ -z "\${HOTSPOT_INTERFACE}" ]; then
+		exit_program 1 "missing argument '-m' <hotspot_interface>"
+	fi
+	echo "\$SICON running 'create_ap --stop "\$HOTSPOT_INTERFACE"'"
+	create_ap --stop "\$HOTSPOT_INTERFACE"
+	if [ "\$?" -ne 0 ]; then
+		echo "\$FICON above error is from the 'create_ap' program, not this script"
+		exit_program 1 "done"
+	fi
+	exit_program 0 "done"
+fi
+
+# from this point on set exit on error just in case
+set -e
+# validate required arguments
+missing_args=()
+[ -z "\$WIFI_INTERFACE" ] && missing_args+=("\$FICON missing argument '-i' <wifi_interface>")
+[ -z "\$CREATE_AP_ARGS" ] && missing_args+=("\$FICON missing argument '-c' <create_ap_args>")
+[ -z "\$HOTSPOT_NAME" ] && missing_args+=("\$FICON missing argument '-n' <hotspot_name>")
+[ -z "\$HOTSPOT_PASSWORD" ] && missing_args+=("\$FICON missing argument '-p' <hotspot_password>")
+[ -z "\$HOTSPOT_INTERFACE" ] && missing_args+=("\$FICON missing argument '-m' <hotspot_interface>")
+# print missing args and exit
+if [ \${#missing_args[@]} -ne 0 ]; then
+    for err in "\${missing_args[@]}"; do
+        echo "\$err"
+    done
+    exit_program 1 "done"
+fi
+# clear iptables
+echo "\$SICON clearing all iptables rules"
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -t nat -F
+iptables -t mangle -F
+iptables -t raw -F 
+iptables -F
+iptables -X
+ip6tables -P INPUT ACCEPT
+ip6tables -P FORWARD ACCEPT
+ip6tables -P OUTPUT ACCEPT
+ip6tables -t nat -F
+ip6tables -t mangle -F
+ip6tables -t raw -F
+ip6tables -F
+ip6tables -X
+# manage wifi interface
+echo "\$SICON telling network manager to manage wifi interface (\$WIFI_INTERFACE)"
+nmcli dev set \$WIFI_INTERFACE managed yes
+sleep 10
+# set interface to managed mode
+echo "\$SICON setting wifi interface (\$WIFI_INTERFACE) to managed mode"
+ip link set \$WIFI_INTERFACE down
+iw dev \$WIFI_INTERFACE set type managed
+rfkill unblock all
+ip link set \$WIFI_INTERFACE up
+# set ttl if user set flags
+if [ -n "\${TTL}" ]; then
+	echo "\$SICON changing ttl"
+	sysctl -w net.ipv4.ip_default_ttl=\$TTL
+	# sysctl -w net.ipv6.ip_default_ttl=\$TTL  # doesn't exist for ipv6
+	iptables -t mangle -A PREROUTING -i "\${WIFI_INTERFACE}" -j TTL --ttl-inc 1
+fi
+# configure iptables for wifi interface
+echo "\$SICON configuring iptables rules for wifi interface (\$WIFI_INTERFACE)"
+iptables -A INPUT -i \$WIFI_INTERFACE -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -i \$WIFI_INTERFACE -j DROP
+ip6tables -A INPUT -i \$WIFI_INTERFACE -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+ip6tables -A INPUT -i \$WIFI_INTERFACE -j DROP
+# iptables-save > /etc/iptables/rules.v4
+# ip6tables-save > /etc/iptables/rules.v6
+# disable ICMP redirect
+echo "\$SICON disable ICMP redirect"
+sysctl -w net.ipv4.conf.all.accept_redirects=0
+sysctl -w net.ipv4.conf.default.accept_redirects=0
+sysctl -w net.ipv4.conf.all.secure_redirects=0
+sysctl -w net.ipv4.conf.default.secure_redirects=0
+sysctl -w net.ipv6.conf.all.accept_redirects=0
+sysctl -w net.ipv6.conf.default.accept_redirects=0
+sysctl -w net.ipv4.conf.all.send_redirects=0
+sysctl -w net.ipv4.conf.default.send_redirects=0
+# randomize mac for wifi interface
+echo "\$SICON randomizing MAC for wifi interface (\$WIFI_INTERFACE)"
+ifconfig "\${WIFI_INTERFACE}" down
+macchanger -r "\${WIFI_INTERFACE}"
+ifconfig "\${WIFI_INTERFACE}" up
+# connect to a network
+countdown=5
+while [ \$countdown -gt 0 ]; do
+    echo -ne "\$SICON connect to a network ('nmtui' interface will pop up in \$countdown)\r"
+    sleep 1
+    countdown=\$((countdown - 1))
+done
+echo ""
+nmtui
+echo ""
+echo "> *NOTE*"
+echo "> If there is no internet access after connecting to the wifi network on interface '\$WIFI_INTERFACE',"
+echo "> you might have to run the following command:"
+echo "> sudo ip route add default via WIFI_DEFAULT_GATEWAY_IP"
+echo "> For example, if the default gateway of the wifi network you connected to is 192.168.68.1, then run:"
+echo "> sudo ip route add default via 192.168.68.1"
+# telling network manager to ignore hotspot interface
+echo "\$SICON telling network manager to ignore hotspot interface (\$HOTSPOT_INTERFACE)"
+nmcli dev set \$HOTSPOT_INTERFACE managed no
+sleep 10
+# randomize mac for hotspot interface
+echo "\$SICON randomizing MAC for hotspot interface (\$HOTSPOT_INTERFACE)"
+ifconfig "\${HOTSPOT_INTERFACE}" down
+macchanger -r "\${HOTSPOT_INTERFACE}"
+ifconfig "\${HOTSPOT_INTERFACE}" up
+# set hotspot interface to monitor mode
+echo "\$SICON setting hotspot interface (\$HOTSPOT_INTERFACE) to monitor mode"
+ip link set \$HOTSPOT_INTERFACE down
+iw dev \$HOTSPOT_INTERFACE set type monitor
+rfkill unblock all
+ip link set \$HOTSPOT_INTERFACE up
+# configure iptables for hotspot interface if needed
+if [ "\$BLOCK_CLIENTS" == "y" ]; then
+	echo "\$SICON configuring iptables rules for hotspot interface (\$HOTSPOT_INTERFACE)"
+	iptables -A INPUT -i \$HOTSPOT_INTERFACE -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	iptables -A INPUT -i \$HOTSPOT_INTERFACE -j DROP
+	ip6tables -A INPUT -i \$HOTSPOT_INTERFACE -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	ip6tables -A INPUT -i \$HOTSPOT_INTERFACE -j DROP
+	# iptables-save > /etc/iptables/rules.v4
+	# ip6tables-save > /etc/iptables/rules.v6
+fi
+# start hotspot
+eval "create_ap \$CREATE_AP_ARGS \"\$HOTSPOT_INTERFACE\" \"\$WIFI_INTERFACE\" \"\$HOTSPOT_NAME\" \"\$HOTSPOT_PASSWORD\""
+EOF
+chown $SUDO_USER:$SUDO_USER $SCRIPTS_FOLDER/start_hotspot.sh
+chmod +x $SCRIPTS_FOLDER/start_hotspot.sh
 
 echo ""
 echo "##########################"
@@ -616,14 +901,14 @@ BACKUP_DIR="/root/.configs_backup"
 TOR_VIRTUAL_ADDRESS_NETWORK="10.192.0.0/10"
 
 help_menu () {
-	echo "usage:"
-	printf "\t-h, --help\tshow this menu\n"
-	printf "\t-w\twifi interface through which you connect to the internet (default '\$WIFI_INTERFACE')\n"
-	printf "\t-e\tethernet interface that acts as NAT router (default '\$ETH_INTERFACE')\n"
-	echo ""
-	echo "examples:"
-	printf "\tsudo \$SCRIPT_PATH -h\n"
-	printf "\tsudo \$SCRIPT_PATH -e eth0 -w wlan1\n"
+	echo -e "usage:"
+	echo -e "\t-h, --help\tshow this menu"
+	echo -e "\t-w\twifi interface through which you connect to the internet (default '\$WIFI_INTERFACE')"
+	echo -e "\t-e\tethernet interface that acts as NAT router (default '\$ETH_INTERFACE')"
+	echo -e ""
+	echo -e "examples:"
+	echo -e "\tsudo \$SCRIPT_PATH -h"
+	echo -e "\tsudo \$SCRIPT_PATH -e eth0 -w wlan1"
 }
 
 if [ "\$#" = 0 ]; then
@@ -635,13 +920,13 @@ fi
 while test \$# -gt 0
 do
 	case "\$1" in
-		-h) help_menu; exit 0
-			;;
-		--help) help_menu; exit 0
+		-h|--help) help_menu; exit 0
 			;;
 		-w) WIFI_INTERFACE="\$2"
+			shift 1
 			;;
 		-e) ETH_INTERFACE="\$2"
+			shift 1
 			;;
 	esac
 	shift
@@ -1072,23 +1357,6 @@ EOF
 chmod +x /usr/local/bin/fluxion
 
 echo ""
-echo "###################"
-echo "# Installing BeEF #"
-echo "###################"
-git clone https://github.com/beefproject/beef.git $TOOL_INSTALL_DIRECTORY/beef
-cd $TOOL_INSTALL_DIRECTORY/beef
-./install
-cd -
-chown $SUDO_USER:$SUDO_USER -R $TOOL_INSTALL_DIRECTORY/beef/
-cat <<EOF > /usr/local/bin/beef
-#!/bin/bash
-# Script to run beef from base dir
-cd $TOOL_INSTALL_DIRECTORY/beef/
-./beef "\$@"
-EOF
-chmod +x /usr/local/bin/beef
-
-echo ""
 echo "########################"
 echo "# Installing Airgeddon #"
 echo "########################"
@@ -1218,14 +1486,14 @@ TOR_VIRTUAL_ADDRESS_NETWORK="10.192.0.0/10"
 CURRENT_NET_PATH="vpn"
 
 help_menu () {
-	echo "usage:"
-	printf "\t-h, --help\tshow this menu\n"
-	printf "\t-w\twifi interface through which you connect to the internet, NOT the VPN interface (default '\$WIFI_INTERFACE')\n"
-	printf "\t-e\tethernet interface that acts as NAT router (default '\$ETH_INTERFACE')\n"
-	echo ""
-	echo "examples:"
-	printf "\tsudo \$SCRIPT_PATH -h\n"
-	printf "\tsudo \$SCRIPT_PATH -e eth0 -w wlan1\n"
+	echo -e "usage:"
+	echo -e "\t-h, --help\tshow this menu"
+	echo -e "\t-w\twifi interface through which you connect to the internet, NOT the VPN interface (default '\$WIFI_INTERFACE')"
+	echo -e "\t-e\tethernet interface that acts as NAT router (default '\$ETH_INTERFACE')"
+	echo -e ""
+	echo -e "examples:"
+	echo -e "\tsudo \$SCRIPT_PATH -h"
+	echo -e "\tsudo \$SCRIPT_PATH -e eth0 -w wlan1"
 }
 
 if [ "\$#" = 0 ]; then
@@ -1237,13 +1505,13 @@ fi
 while test \$# -gt 0
 do
 	case "\$1" in
-		-h) help_menu; exit 0
-			;;
-		--help) help_menu; exit 0
+		-h|--help) help_menu; exit 0
 			;;
 		-w) WIFI_INTERFACE="\$2"
+			shift 1
 			;;
 		-e) ETH_INTERFACE="\$2"
+			shift 1
 			;;
 	esac
 	shift
