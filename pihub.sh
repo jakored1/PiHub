@@ -485,19 +485,18 @@ echo "########################"
 apt-get install -y wireshark
 
 echo ""
-echo "###################################"
-echo "# Installing Driver For RTL8814AU #"
-echo "###################################"
+echo "##############################################"
+echo "# Installing Driver For RTL88XXAU (and more) #"
+echo "##############################################"
 apt-get install -y raspberrypi-kernel-headers bc mokutil build-essential libelf-dev dkms
-git clone https://gitlab.com/kalilinux/packages/realtek-rtl88xxau-dkms.git
-cd realtek-rtl88xxau-dkms
-sed -i 's/CONFIG_RTL8812A = y/CONFIG_RTL8812A = n/' Makefile
-sed -i 's/CONFIG_RTL8821A = y/CONFIG_RTL8821A = n/' Makefile
-make dkms_install
-# to check if installed run "dkms status"
-# to remove driver run "make dkms_remove"
+git clone https://github.com/lwfinger/rtw88 /opt/rtw88
+cd /opt/rtw88
+dkms install $PWD
+make install_fw
+cp rtw88.conf /etc/modprobe.d/
+# mokutil --import /var/lib/dkms/mok.pub  # only needed if secure boot is enabled, which is not default on rpi5
 cd -
-rm -rf realtek-rtl88xxau-dkms
+chown -R $SUDO_USER:$SUDO_USER /opt/rtw88
 cat <<EOF > $SCRIPTS_FOLDER/set_monitor_mode.sh
 #!/bin/bash
 
