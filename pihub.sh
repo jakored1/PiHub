@@ -488,7 +488,7 @@ echo ""
 echo "##############################################"
 echo "# Installing Driver For RTL88XXAU (and more) #"
 echo "##############################################"
-apt-get install -y raspberrypi-kernel-headers bc mokutil build-essential libelf-dev dkms
+apt-get install -y raspberrypi-kernel-headers bc mokutil build-essential libelf-dev dkms bison flex
 git clone https://github.com/lwfinger/rtw88 /opt/rtw88
 cd /opt/rtw88
 dkms install $PWD
