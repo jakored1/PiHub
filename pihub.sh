@@ -493,8 +493,14 @@ git clone https://github.com/lwfinger/rtw88 /opt/rtw88
 cd /opt/rtw88
 dkms install $PWD
 make install_fw
-cp rtw88.conf /etc/modprobe.d/
+cp ./rtw88.conf /etc/modprobe.d/
 # mokutil --import /var/lib/dkms/mok.pub  # only needed if secure boot is enabled, which is not default on rpi5
+# load driver now (add any you want)
+modprobe rtw_8814au
+# make driver for 8814au load on startup (you can add more valid drivers if you want to)
+echo rtw_8814au | sudo tee /etc/modules-load.d/rtw_8814au.conf
+# refresh module dependencies
+depmod -a
 cd -
 chown -R $SUDO_USER:$SUDO_USER /opt/rtw88
 cat <<EOF > $SCRIPTS_FOLDER/set_monitor_mode.sh
